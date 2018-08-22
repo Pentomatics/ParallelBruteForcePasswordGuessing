@@ -3,7 +3,6 @@ import pr.MakeItSimple;
 import javax.xml.bind.DatatypeConverter;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.Iterator;
 import java.util.LinkedList;
 
 public class PasswordGuessing {
@@ -12,6 +11,8 @@ public class PasswordGuessing {
     private String[] passwords;
     private char[] passwordAlphabet;
 
+
+    // Todo why not millis? Wird vom system korrigiert - uhrzeit. Nanos bleiben unbeeinflusst und sind für Zeitmessung gedacht
     private long[] guessingTimesInNanoSeconds;
 
     public PasswordGuessing(String filename, String passwordAlphabet) {
