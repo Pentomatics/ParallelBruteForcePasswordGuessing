@@ -66,11 +66,14 @@ public class PasswordGuessing {
 
 
     public String guessPassword(String name, String encryptedPw) {
-        // start value
-        String bruteForcePW = "" + passwordAlphabet[0] + passwordAlphabet[0] + passwordAlphabet[0] + passwordAlphabet[0];
+        String bruteForcePW = "";
+        String lastPossiblePassword = "";
 
-        int lastCharacterIndex = passwordAlphabet.length - 1;
-        String lastPossiblePassword = "" + passwordAlphabet[lastCharacterIndex] + passwordAlphabet[lastCharacterIndex] + passwordAlphabet[lastCharacterIndex] + passwordAlphabet[lastCharacterIndex];
+        // password length of 4
+        for (int i = 0; i < 4; i++) {
+            bruteForcePW += passwordAlphabet[0];
+            lastPossiblePassword += passwordAlphabet[passwordAlphabet.length - 1];
+        }
 
         try {
             while (!md5(name + bruteForcePW).equals(encryptedPw) && !bruteForcePW.equals(lastPossiblePassword)) {
