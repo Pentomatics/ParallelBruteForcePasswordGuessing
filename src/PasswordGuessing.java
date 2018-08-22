@@ -11,9 +11,10 @@ public class PasswordGuessing {
     private String[] passwords;
     private char[] passwordAlphabet;
 
-
-    // Todo why not millis? Wird vom system korrigiert - uhrzeit. Nanos bleiben unbeeinflusst und sind für Zeitmessung gedacht
+    // System.currentTimeMillis() gets adjusted by the system and can influence the time measurement
+    // Therefore we use System.nanoTime() to measure elapsed time
     private long[] guessingTimesInNanoSeconds;
+
 
     public PasswordGuessing(String filename, String passwordAlphabet) {
         readNamesAndPasswordsFromFile(filename);
@@ -22,24 +23,23 @@ public class PasswordGuessing {
         this.guessingTimesInNanoSeconds = new long[names.length];
     }
 
+
     public void readNamesAndPasswordsFromFile(String filename) {
         String[] fileRows = MakeItSimple.readStringArray(filename);
         names = new String[fileRows.length];
         passwords = new String[fileRows.length];
 
         for (int i = 0; i < fileRows.length; i++) {
-            String[] splittedRow = fileRows[i].split(",");
+            String[] splitRow = fileRows[i].split(",");
 
-            names[i] = splittedRow[0];
-            passwords[i] = splittedRow[1];
+            names[i] = splitRow[0];
+            passwords[i] = splitRow[1];
         }
     }
 
 
     public void guessPasswords() {
         LinkedList<PasswordGuesserThread> threads = new LinkedList<>();
-
-
         long startNano = System.nanoTime();
 
         // start all threads
@@ -48,7 +48,6 @@ public class PasswordGuessing {
             pgt.start();
             threads.add(pgt);
         }
-
 
         // wait for all threads to be finished
         for (PasswordGuesserThread thread : threads) {
@@ -60,24 +59,7 @@ public class PasswordGuessing {
         }
 
         long endNano = System.nanoTime();
-
-
-        long longestGuessingTime = 0;
-        long durationOfAllThreads = 0;
-        for (long guessingTime : guessingTimesInNanoSeconds) {
-            if (guessingTime > longestGuessingTime) {
-                longestGuessingTime = guessingTime;
-            }
-
-            durationOfAllThreads += guessingTime;
-        }
-
-        long durationOfParallelPasswordGuessing = endNano - startNano;
-
-        System.out.println("\nLaufzeit aller parallel laufenden Rate Threads: " + durationOfParallelPasswordGuessing / 1000000 + " ms");
-        System.out.println("Laufzeit des längsten Rate Threads: " + longestGuessingTime / 1000000 + " ms");
-        System.out.println("Addierte Laufzeit aller Rate Threads: " + durationOfAllThreads / 1000000 + " ms");
-        System.out.println("Speedup: " + 1.0 * durationOfAllThreads / durationOfParallelPasswordGuessing);
+        printMeasurementResults(endNano - startNano);
     }
 
     public String guessPassword(String name, String encryptedPw) {
@@ -87,7 +69,6 @@ public class PasswordGuessing {
         int lastCharacterIndex = passwordAlphabet.length - 1;
         String lastPossiblePassword = "" + passwordAlphabet[lastCharacterIndex] + passwordAlphabet[lastCharacterIndex] + passwordAlphabet[lastCharacterIndex] + passwordAlphabet[lastCharacterIndex];
 
-// Todo, was wenn last possible pw? Pw not found
         try {
             while (!md5(name + bruteForcePW).equals(encryptedPw) && !bruteForcePW.equals(lastPossiblePassword)) {
                 bruteForcePW = getNextPassword(bruteForcePW);
@@ -95,8 +76,7 @@ public class PasswordGuessing {
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
         }
-//Todo delete
-        //System.out.println("The of " + name + " is: " + bruteForcePW);
+
         return bruteForcePW;
     }
 
@@ -148,6 +128,24 @@ public class PasswordGuessing {
     }
 
 
+    private void printMeasurementResults(long durationOfParallelPasswordGuessing) {
+        long longestGuessingTime = 0;
+        long durationOfAllThreads = 0;
+
+        for (long guessingTime : guessingTimesInNanoSeconds) {
+            if (guessingTime > longestGuessingTime) {
+                longestGuessingTime = guessingTime;
+            }
+
+            durationOfAllThreads += guessingTime;
+        }
+
+        System.out.println("\nLaufzeit aller parallel laufenden Rate Threads: " + durationOfParallelPasswordGuessing / 1000000 + " ms");
+        System.out.println("Laufzeit des längsten Rate Threads: " + longestGuessingTime / 1000000 + " ms");
+        System.out.println("Addierte Laufzeit aller Rate Threads: " + durationOfAllThreads / 1000000 + " ms");
+        System.out.println("Speedup: " + 1.0 * durationOfAllThreads / durationOfParallelPasswordGuessing);
+    }
+
 
 
     private class PasswordGuesserThread extends Thread {
@@ -163,6 +161,7 @@ public class PasswordGuessing {
 
         public synchronized void run() {
             long startNano = System.nanoTime();
+
             String plainTextPW = guessPassword(name, encryptedPW);
             long endNano = System.nanoTime();
 
