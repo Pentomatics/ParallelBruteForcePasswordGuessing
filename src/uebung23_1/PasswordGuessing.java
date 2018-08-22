@@ -1,3 +1,5 @@
+package uebung23_1;
+
 import pr.MakeItSimple;
 
 import javax.xml.bind.DatatypeConverter;
@@ -61,6 +63,7 @@ public class PasswordGuessing {
         long endNano = System.nanoTime();
         printMeasurementResults(endNano - startNano);
     }
+
 
     public String guessPassword(String name, String encryptedPw) {
         // start value
@@ -145,7 +148,6 @@ public class PasswordGuessing {
         System.out.println("Addierte Laufzeit aller Rate Threads: " + durationOfAllThreads / 1000000 + " ms");
         System.out.println("Speedup: " + 1.0 * durationOfAllThreads / durationOfParallelPasswordGuessing);
     }
-
 
 
     private class PasswordGuesserThread extends Thread {
