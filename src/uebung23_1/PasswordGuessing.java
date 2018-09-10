@@ -2,9 +2,9 @@ package uebung23_1;
 
 import pr.MakeItSimple;
 
-import javax.xml.bind.DatatypeConverter;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Base64;
 import java.util.LinkedList;
 
 public class PasswordGuessing {
@@ -89,7 +89,7 @@ public class PasswordGuessing {
 
     private static String md5(String s) throws NoSuchAlgorithmException {
         MessageDigest md = MessageDigest.getInstance("MD5");
-        return DatatypeConverter.printBase64Binary(md.digest(s.getBytes()));
+        return new String(Base64.getEncoder().encode(md.digest(s.getBytes())));
     }
 
 
